@@ -31,25 +31,39 @@ const App = () => {
 
     const existingPerson = persons.find(person => person.name === newName.trim())
 
-    if(names.includes(newName.trim()) && newNumber !== existingPerson.number && existingPerson.number !== "") {
-          if(window.confirm(`${newName} is already added to phonebook, replace old number with a new one?`)){
-            updatePerson(existingPerson,nameObject)
-          }} else if(names.includes(newName.trim()) && existingPerson.number === "" && newNumber !== "") {
-            updatePerson(existingPerson,nameObject)
-          }
-          else if(names.includes(newName.trim())) {
-            showNotification(`${newName} is already added to phonebook`, true)
-          } else if (newName === ""){
-            showNotification(`new entry must have a name`, true)
-        } else {
-          personService
-            .create(nameObject)
-            .then(returnedName => {
-              setPersons(persons.concat(returnedName))
-              showNotification(`Added ${newName}`)   
-      })
+    if (!newName.trim()) {
+      showNotification('New entry must have a name', true)
+        return
     }
 
+    if (!newNumber.trim()) {
+      showNotification('New entry must have a number', true)
+      return
+    }
+
+    if (existingPerson) {
+      if (existingPerson.number !== newNumber.trim()) {
+        if (
+          existingPerson.number === '' ||
+          window.confirm(
+            `${newName} is already added to phonebook, replace old number with a new one?`
+          )
+        ) {
+          updatePerson(existingPerson, nameObject)
+        }
+      } else {
+        showNotification(`${newName} is already added to phonebook`, true)
+      }
+
+      return
+    }
+
+    personService
+      .create(nameObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        showNotification(`Added ${returnedPerson.name}`)
+      })
     
     setNewName('')
     setNewNumber("")
